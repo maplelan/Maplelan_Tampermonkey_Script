@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         巴哈姆特動畫瘋輔助工具
 // @namespace    https://github.com/maplelan/Maplelan_Tampermonkey_Script/blob/main/%E5%B7%B4%E5%93%88%E5%A7%86%E7%89%B9%E5%8B%95%E7%95%AB%E7%98%8B%E8%BC%94%E5%8A%A9%E5%B7%A5%E5%85%B7.user.js
-// @version      1.0.1.1
+// @version      1.0.2
 // @description  顯示動畫瘋撥放時間於上架時間列 可開關[自動跳過開頭年齡認證 自動於結尾播放下一集] 可開關[在開始時自動切換至彈幕設定]
 // @author       Maplelan
 // @license MIT
@@ -123,6 +123,17 @@
         font-size: 0.5em;
         line-height: 1.5;
         }
+
+        .hidde{
+        display:none;
+        }
+
+        .down{
+         display:inline-block;
+         -webkit-transform: translateY(20%);
+         -ms-transform: translateY(20%);
+         transform: translateY(20%);
+        }
         `;
     document.head.append(style);
 
@@ -147,20 +158,32 @@
     dm_sw.className = "ani-tabs__item";
     dm_sw.style = "align-items: center; height: 24px;";
     dm_sw.innerHTML = `
-    <span>
+    <span id="sw_span">
     <label class="switch">
-    <input type="checkbox" ${(show_dm?"checked":"") } onchange="if(this.checked){localStorage.setItem('${DM_ITEM_NAME}','true');}else{localStorage.setItem('${DM_ITEM_NAME}','false');}" id="swdm_cb">
+    <input type="checkbox" ${(show_dm?"checked":"") } onchange="
+    if(this.checked){
+    localStorage.setItem('${DM_ITEM_NAME}','true');
+    document.getElementById('hid').className = '';
+    document.getElementById('sw_span').className = '';
+    }else{
+    localStorage.setItem('${DM_ITEM_NAME}','false');
+    document.getElementById('hid').className = 'hidde';
+    document.getElementById('sw_span').className = 'down';
+    }" id="swdm_cb">
     <span class="slider">
     </span>
     </label>
     </span>
     <span id="auto_hid_dm" >
-    <div style="display:inline-block;">自動切換至彈幕設定<br>省的看那群SB發言</div>
+    <div style="display:inline-block;">自動至彈幕設定<span id="hid"><br>省的看那群SB發言</span></div>
     </span>`;
     dis.append(dm_sw);
 
     if(show_dm){
         document.evaluate('//*[@id="setting-danmu"]/a', document).iterateNext().click();
+    }else{
+        document.getElementById('hid').className = 'hidde';
+    document.getElementById('sw_span').className = 'down';
     }
 
 
