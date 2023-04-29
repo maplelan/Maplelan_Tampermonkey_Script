@@ -1,65 +1,67 @@
 // ==UserScript==
 // @name         巴哈姆特動畫瘋輔助工具
 // @namespace    https://github.com/maplelan/Maplelan_Tampermonkey_Script/blob/main/%E5%B7%B4%E5%93%88%E5%A7%86%E7%89%B9%E5%8B%95%E7%95%AB%E7%98%8B%E8%BC%94%E5%8A%A9%E5%B7%A5%E5%85%B7.user.js
-// @version      1.0.2
-// @description  顯示動畫瘋撥放時間於上架時間列 可開關[自動跳過開頭年齡認證 自動於結尾播放下一集] 可開關[在開始時自動切換至彈幕設定]
+// @version      1.1.0
+// @description  顯示動畫瘋撥放時間於上架時間列 可開關[自動跳過開頭年齡認證 自動於結尾播放下一集] 可開關[在開始時自動切換至彈幕設定] 幫所有縮圖標題加上滑鼠移上去即顯示
 // @author       Maplelan
 // @license MIT
-// @match        *ani.gamer.com.tw/animeVideo.php?sn=*
+// @match        *ani.gamer.com.tw/*
 // @icon         https://ani.gamer.com.tw/apple-touch-icon-114.jpg
 // @grant        none
 // ==/UserScript==
 
 (function() {
-    const PLAYBACK_RATE = 1.0;
-    const VIDEO_TAG_NAME = 'VIDEO-JS';
-    const NCC_CLASS_NAME = "video-cover-ncc";
-    const LS_ITEM_NAME = "ani_gamer_com_tw_skip_all";
-    const DM_ITEM_NAME = "ani_gamer_com_tw_DM_SHOW";
+    let url = new URL(location.href).toString();
+    if(url.indexOf("animeVideo.php?sn=") != -1){//播放頁面
+        const PLAYBACK_RATE = 1.0;
+        const VIDEO_TAG_NAME = 'VIDEO-JS';
+        const NCC_CLASS_NAME = "video-cover-ncc";
+        const LS_ITEM_NAME = "ani_gamer_com_tw_skip_all";
+        const DM_ITEM_NAME = "ani_gamer_com_tw_DM_SHOW";
 
-    let detail = document.evaluate('//*[@id="BH_background"]/div[2]/div[2]/div[1]/section[1]/div[2]/div', document).iterateNext();
+        let detail = document.evaluate('//*[@id="BH_background"]/div[2]/div[2]/div[1]/section[1]/div[2]/div', document).iterateNext();
 
-    const item = document.createElement('div');
-    item.id = 'always_TIME';
-    item.className = 'newanime-count';
-    item.style = "text-indent:1em;";
-    item.innerHTML = `00:00 / 00:00　0%`;
+        const item = document.createElement('div');
+        item.id = 'always_TIME';
+        item.className = 'newanime-count';
+        item.style = "text-indent:1em;";
+        item.innerHTML = `00:00 / 00:00　0%`;
 
-    detail.append(item);
+        detail.append(item);
 
-    let skip = false;
-    switch(localStorage.getItem(LS_ITEM_NAME)){
-        case "true":{
-            skip = true;
-            break;
+        let skip = false;
+        switch(localStorage.getItem(LS_ITEM_NAME)){
+            case "true":{
+                skip = true;
+                break;
+            }
+            case null:{
+                localStorage.setItem(LS_ITEM_NAME,"false");
+            }
+            case "false":{
+                skip = false;
+                break;
+            }
         }
-        case null:{
-            localStorage.setItem(LS_ITEM_NAME,"false");
-        }
-        case "false":{
-            skip = false;
-            break;
-        }
-    }
 
-    let show_dm = false;
-    switch(localStorage.getItem(DM_ITEM_NAME)){
-        case "true":{
-            show_dm = true;
-            break;
+        let show_dm = false;
+        switch(localStorage.getItem(DM_ITEM_NAME)){
+            case "true":{
+                show_dm = true;
+                break;
+            }
+            case null:{
+                localStorage.setItem(DM_ITEM_NAME,"false");
+            }
+            case "false":{
+                show_dm = false;
+                break;
+            }
         }
-        case null:{
-            localStorage.setItem(DM_ITEM_NAME,"false");
-        }
-        case "false":{
-            show_dm = false;
-            break;
-        }
-    }
 
-    let dis = document.evaluate('//*[@id="BH_background"]/div[2]/div[2]/div[1]/section[1]/div[2]', document).iterateNext();
+        let dis = document.evaluate('//*[@id="BH_background"]/div[2]/div[2]/div[1]/section[1]/div[2]', document).iterateNext();
 
-    const style = document.createElement('style');
+        const style = document.createElement('style');
         style.innerHTML = `
         .switch {
         position: relative;
@@ -135,11 +137,11 @@
          transform: translateY(20%);
         }
         `;
-    document.head.append(style);
+        document.head.append(style);
 
-    const sk_sw = document.createElement('div');
-    sk_sw.style = "align-items: center; height: 24px;";
-    sk_sw.innerHTML = `
+        const sk_sw = document.createElement('div');
+        sk_sw.style = "align-items: center; height: 24px;";
+        sk_sw.innerHTML = `
     <span>
     <label class="switch">
     <input type="checkbox" ${(skip?"checked":"") } onchange="if(this.checked){localStorage.setItem('${LS_ITEM_NAME}','true');}else{localStorage.setItem('${LS_ITEM_NAME}','false');}" id="skip_cb">
@@ -150,14 +152,14 @@
     <span id="auto_play">
     <div style="display:inline-block; -webkit-transform: translateY(40%); -ms-transform: translateY(40%); transform: translateY(40%);">自動撥放</div>
     </span>`;
-    dis.append(sk_sw);
+        dis.append(sk_sw);
 
-    dis = document.evaluate('//*[@id="BH_background"]/div[2]/section[1]/div[2]/div[1]', document).iterateNext();
+        dis = document.evaluate('//*[@id="BH_background"]/div[2]/section[1]/div[2]/div[1]', document).iterateNext();
 
-    const dm_sw = document.createElement('div');
-    dm_sw.className = "ani-tabs__item";
-    dm_sw.style = "align-items: center; height: 24px;";
-    dm_sw.innerHTML = `
+        const dm_sw = document.createElement('div');
+        dm_sw.className = "ani-tabs__item";
+        dm_sw.style = "align-items: center; height: 24px;";
+        dm_sw.innerHTML = `
     <span id="sw_span">
     <label class="switch">
     <input type="checkbox" ${(show_dm?"checked":"") } onchange="
@@ -177,77 +179,77 @@
     <span id="auto_hid_dm" >
     <div style="display:inline-block;">自動至彈幕設定<span id="hid"><br>省的看那群SB發言</span></div>
     </span>`;
-    dis.append(dm_sw);
+        dis.append(dm_sw);
 
-    if(show_dm){
-        document.evaluate('//*[@id="setting-danmu"]/a', document).iterateNext().click();
-    }else{
-        document.getElementById('hid').className = 'hidde';
-    document.getElementById('sw_span').className = 'down';
-    }
-
-
-
-    const updateVideoPlaybackRate = node => {
-        if (node.tagName !== VIDEO_TAG_NAME) {
-            return;
+        if(show_dm){
+            document.evaluate('//*[@id="setting-danmu"]/a', document).iterateNext().click();
+        }else{
+            document.getElementById('hid').className = 'hidde';
+            document.getElementById('sw_span').className = 'down';
         }
 
-        node.player.defaultPlaybackRate(PLAYBACK_RATE);
-    };
 
-    const skipNCCTerm = (node) => {
-        if ((!document.getElementById("skip_cb").checked) || (node.className !== NCC_CLASS_NAME)) {
-            return;
+
+        const updateVideoPlaybackRate = node => {
+            if (node.tagName !== VIDEO_TAG_NAME) {
+                return;
+            }
+
+            node.player.defaultPlaybackRate(PLAYBACK_RATE);
+        };
+
+        const skipNCCTerm = (node) => {
+            if ((!document.getElementById("skip_cb").checked) || (node.className !== NCC_CLASS_NAME)) {
+                return;
+            }
+
+            const button = document.querySelector('#adult');
+            button.click();
         }
 
-        const button = document.querySelector('#adult');
-        button.click();
-    }
-
-    const mutationCallback = xs => {
-        for(let j=0;j<xs.length;j++){
-            switch(xs[j].target.className){
-                case "vjs-current-time-display":{
-                    if(document.querySelector('.vjs-current-time-display') && document.querySelector('.vjs-duration-display')){
-                        const now = document.querySelector('.vjs-current-time-display').textContent;
-                        const all = document.querySelector('.vjs-duration-display').textContent;
-                        if(now != "" && all != ""){
-                            document.getElementById("always_TIME").innerHTML = now + " / " + all + "　" + (timetoper(now,all)*100).toFixed(2) + "%";
+        const mutationCallback = xs => {
+            for(let j=0;j<xs.length;j++){
+                switch(xs[j].target.className){
+                    case "vjs-current-time-display":{
+                        if(document.querySelector('.vjs-current-time-display') && document.querySelector('.vjs-duration-display')){
+                            const now = document.querySelector('.vjs-current-time-display').textContent;
+                            const all = document.querySelector('.vjs-duration-display').textContent;
+                            if(now != "" && all != ""){
+                                document.getElementById("always_TIME").innerHTML = now + " / " + all + "　" + (timetoper(now,all)*100).toFixed(2) + "%";
+                            }
                         }
+                        break;
                     }
-                    break;
-                }
-                case "nativeAD-skip-button enable":{
-                    let AD_skip = document.getElementsByClassName("nativeAD-skip-button enable");
-                    for(let i=0;i<AD_skip.length;i++){
-                        let AD_item = AD_skip[i];
-                        AD_item.click();
+                    case "nativeAD-skip-button enable":{
+                        let AD_skip = document.getElementsByClassName("nativeAD-skip-button enable");
+                        for(let i=0;i<AD_skip.length;i++){
+                            let AD_item = AD_skip[i];
+                            AD_item.click();
+                        }
+                        //console.log(xs);
+                        break;
                     }
-                    //console.log(xs);
-                    break;
-                }
-                case "vjs-control-text":{
-                    //console.log(xs[j].target);
-                    if(document.getElementById("skip_cb").checked){
-                        let anv = document.getElementById("ani_video");
-                        if(anv.className.indexOf("vjs-ended") != -1){
-                            console.log("end");
-                            let divlist = anv.getElementsByClassName("replay");
-                            for(let i=0;i<divlist.length;i++){
-                                let find = divlist[i];
-                                let a = find.getElementsByTagName("a");
-                                if(a.length >= 2){
-                                    setTimeout(()=>{
-                                        a[1].click();
-                                    }, 500);
+                    case "vjs-control-text":{
+                        //console.log(xs[j].target);
+                        if(document.getElementById("skip_cb").checked){
+                            let anv = document.getElementById("ani_video");
+                            if(anv.className.indexOf("vjs-ended") != -1){
+                                console.log("end");
+                                let divlist = anv.getElementsByClassName("replay");
+                                for(let i=0;i<divlist.length;i++){
+                                    let find = divlist[i];
+                                    let a = find.getElementsByTagName("a");
+                                    if(a.length >= 2){
+                                        setTimeout(()=>{
+                                            a[1].click();
+                                        }, 500);
+                                    }
                                 }
                             }
                         }
+                        break;
                     }
-                    break;
-                }
-                /*case "info":{
+                        /*case "info":{
                     console.log("廣告開播");
                     let intervalID = setInterval(function() {
                         let iframe = document.querySelector("iframe");
@@ -260,23 +262,32 @@
                     }, 500);
                     break;
                 }*/
+                }
             }
-        }
-        //console.log(xs)
-        xs.forEach(({ addedNodes }) => {
-            addedNodes.forEach(node => {
-                updateVideoPlaybackRate(node);
-                skipNCCTerm(node);
+            //console.log(xs)
+            xs.forEach(({ addedNodes }) => {
+                addedNodes.forEach(node => {
+                    updateVideoPlaybackRate(node);
+                    skipNCCTerm(node);
+                });
             });
+        };
+
+        const observer = new MutationObserver(mutationCallback);
+
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
         });
-    };
-
-    const observer = new MutationObserver(mutationCallback);
-
-    observer.observe(document.body, {
-        childList: true,
-        subtree: true,
-    });
+    }
+    //全部都做的
+    //幫所有動畫標題加上滑鼠移上去即顯示的功能
+    let theme_name = document.getElementsByClassName("theme-name");
+    for(let i=0;i<theme_name.length;i++){
+        let p = theme_name[i];
+        p.setAttribute('title',p.innerText);
+        console.log(p);
+    }
 })();
 
 function timetoper(now,all){
