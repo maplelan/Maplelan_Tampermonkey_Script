@@ -8,6 +8,7 @@
 // @description:zh-TW  讓Google頁面中的幣值歷史走線圖可以撥放音樂並顯示視覺化 沒有任何實際有用的功能
 // @description:zh-CN  让Google页面中的币值历史走线图可以拨放音乐并显示视觉化 没有任何实际有用的功能
 // @author       Maplelan
+// @license      MIT
 // @match        https://www.google.com/search?q=*
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=google.com
 // @grant        none
