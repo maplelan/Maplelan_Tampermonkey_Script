@@ -2,7 +2,7 @@
 // @name         Google Music Visualization
 // @name:zh-TW   Google 音樂視覺化
 // @name:zh-CN   Google 音乐视觉化
-// @namespace    http://tampermonkey.net/
+// @namespace    https://github.com/maplelan/Maplelan_Tampermonkey_Script/blob/main/Google%20%E8%A6%96%E8%A6%BA%E5%8C%96.user.js
 // @version      1.0
 // @description  Let Google's currency historical chart in the webpage to play music and display visualizations, unuseful tool.
 // @description:zh-TW  讓Google頁面中的幣值歷史走線圖可以撥放音樂並顯示視覺化 沒有任何實際有用的功能
