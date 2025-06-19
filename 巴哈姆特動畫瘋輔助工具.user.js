@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         巴哈姆特動畫瘋輔助工具
 // @namespace    https://github.com/maplelan/Maplelan_Tampermonkey_Script/blob/main/%E5%B7%B4%E5%93%88%E5%A7%86%E7%89%B9%E5%8B%95%E7%95%AB%E7%98%8B%E8%BC%94%E5%8A%A9%E5%B7%A5%E5%85%B7.user.js
-// @version      1.1.1
+// @version      1.1.2
 // @description  顯示動畫瘋撥放時間於上架時間列 可開關[自動跳過開頭年齡認證 自動於結尾播放下一集] 可開關[在開始時自動切換至彈幕設定] 將滑鼠移上縮圖標題會以浮動方塊顯示完整標題
 // @author       Maplelan
 // @license MIT
@@ -59,10 +59,28 @@
             }
         }
 
-        let dis = document.evaluate('//*[@id="BH_background"]/div[2]/div[2]/div[1]/section[1]/div[2]', document).iterateNext();
+        let dis = document.createElement('div');
+        dis.classList.add("btCon");
 
         const style = document.createElement('style');
         style.innerHTML = `
+        .btCon{
+            display: flex;
+        }
+
+        .sw_item{
+        display: flex;
+        flex-direction: row;
+        align-content: center;
+        flex-wrap: wrap;
+        margin-right: 0.5em;
+        }
+
+        #hid{
+        display: inline-block;
+        margin-left: 1em;
+        }
+
         .switch {
         position: relative;
         display: inline-block;
@@ -116,7 +134,6 @@
         align-items: center;
         color: var(--text-default-color);
         font-size: 1.5em;
-        text-indent: 0.5em;
         }
 
         #auto_hid_dm{
@@ -126,60 +143,62 @@
         line-height: 1.5;
         }
 
-        .hidde{
-        display:none;
-        }
-
         .down{
          display:inline-block;
          -webkit-transform: translateY(20%);
          -ms-transform: translateY(20%);
          transform: translateY(20%);
         }
+
+        .swText{
+            align-content: center;
+        text-indent: 0.5rem;
+        }
+
+        .hidde{
+        display:none !important;
+        }
         `;
         document.head.append(style);
 
+
         const sk_sw = document.createElement('div');
-        sk_sw.style = "align-items: center; height: 24px;";
+        sk_sw.classList.add("sw_item");
         sk_sw.innerHTML = `
-    <span>
     <label class="switch">
     <input type="checkbox" ${(skip?"checked":"") } onchange="if(this.checked){localStorage.setItem('${LS_ITEM_NAME}','true');}else{localStorage.setItem('${LS_ITEM_NAME}','false');}" id="skip_cb">
     <span class="slider">
-    </span>
     </label>
     </span>
-    <span id="auto_play">
-    <div style="display:inline-block; -webkit-transform: translateY(40%); -ms-transform: translateY(40%); transform: translateY(40%);">自動撥放</div>
+    <span id="auto_play" class="swText">自動撥放
     </span>`;
         dis.append(sk_sw);
 
-        dis = document.evaluate('//*[@id="BH_background"]/div[2]/section[1]/div[2]/div[1]', document).iterateNext();
+        //dis = document.evaluate('//*[@id="BH_background"]/div[2]/section[1]/div[2]/div[1]', document).iterateNext();
 
         const dm_sw = document.createElement('div');
-        dm_sw.className = "ani-tabs__item";
-        dm_sw.style = "align-items: center; height: 24px;";
+        dm_sw.classList.add("ani-tabs__item");
+        dm_sw.classList.add("sw_item");
         dm_sw.innerHTML = `
-    <span id="sw_span">
     <label class="switch">
     <input type="checkbox" ${(show_dm?"checked":"") } onchange="
+    console.log(this.checked);
     if(this.checked){
-    localStorage.setItem('${DM_ITEM_NAME}','true');
-    document.getElementById('hid').className = '';
-    document.getElementById('sw_span').className = '';
+        localStorage.setItem('${DM_ITEM_NAME}','true');
+        document.getElementById('hid').classList.remove('hidde');
     }else{
-    localStorage.setItem('${DM_ITEM_NAME}','false');
-    document.getElementById('hid').className = 'hidde';
-    document.getElementById('sw_span').className = 'down';
+        localStorage.setItem('${DM_ITEM_NAME}','false');
+        document.getElementById('hid').classList.add('hidde');
     }" id="swdm_cb">
     <span class="slider">
     </span>
     </label>
-    </span>
-    <span id="auto_hid_dm" >
-    <div style="display:inline-block;">自動至彈幕設定<span id="hid"><br>省的看那群SB發言</span></div>
+    <span id="auto_hid_dm" class="swText">
+    自動至彈幕設定<span id="hid">省的看那群SB發言</span>
     </span>`;
         dis.append(dm_sw);
+
+        document.evaluate('//*[@id="BH_background"]/div[2]/div[2]/div[1]/section[1]/div[2]', document).iterateNext().append(dis);
 
         if(show_dm){
             document.evaluate('//*[@id="setting-danmu"]/a', document).iterateNext().click();
@@ -282,12 +301,12 @@
     }
     //全部都做的
     //幫所有動畫標題加上滑鼠移上去即顯示的功能
-    let theme_name = document.getElementsByClassName("theme-name");
+    /*let theme_name = document.getElementsByClassName("theme-name");
     for(let i=0;i<theme_name.length;i++){
         let p = theme_name[i];
         p.setAttribute('title',p.innerText);
         console.log(p);
-    }
+    }*/
 })();
 
 function timetoper(now,all){
